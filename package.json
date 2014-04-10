@@ -1,0 +1,45 @@
+{
+  "name": "aiq",
+  "version": "0.0.3",
+  "description": "AppearIQ Mobile SDK",
+  "author": "Appear Networks",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/appear/aiq-mobile-sdk/blob/master/LICENSE-MIT"
+    }
+  ],
+  "bin": {
+    "aiq": "bin/aiq"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "preferGlobal": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/appear/aiq-mobile-sdk.git"
+  },
+  "keywords": [
+    "Appear",
+    "appeariq",
+    "HTML5",
+    "mobile"
+  ],
+  "bugs": {
+    "url": "https://github.com/appear/aiq-mobile-sdk/issues"
+  },
+  "homepage": "https://github.com/appear/aiq-mobile-sdk",
+  "dependencies": {
+    "cli-table": "^0.3.0",
+    "commander": "^2.2.0"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.4",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-nodeunit": "^0.3.3"
+  }
+}

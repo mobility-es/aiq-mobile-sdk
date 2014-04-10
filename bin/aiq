@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var pkg = require('../package.json');
+var program = require('commander');
+
+process.title = pkg.name;
+
+program.version(pkg.version);
+
+program
+    .command('login')
+    .description('Login to the IA')
+    .option('-s, --serverUrl <url>', 'IA server URL', 'https://dev.appeariq.com')
+    .option('-o, --org <orgName>', 'OrgName')
+    .option('-u, --username <username>', 'Username')
+    .option('-p, --password <password>', 'Password')
+    .on('--help', function () {
+        console.log('  Examples:');
+        console.log('');
+        console.log('    $ aiq -s https://example.com -o Example -u admin -p s0m3th1ngs3qr3');
+        console.log('');
+    })
+    .action(function () {
+        console.log('in');
+    });
+
+program
+    .command('logout')
+    .description('Logout')
+    .action(function () {
+        console.log('out');
+    });
+
+program.parse(process.argv);
+
+if (!program.args.length) {
+    program.help();
+}
