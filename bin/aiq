@@ -18,7 +18,7 @@ process.title = pkg.name;
 function processArguments (proxyTo, successCallbackOrText) {
     return function () {
         var args = arguments,
-            authInfo = utils.slice(args, -1)[0].parent;
+            authInfo = args[args.length - 1].parent;
 
         function handle () {
             proxyTo.apply(services, args).then(
@@ -45,7 +45,7 @@ function processArguments (proxyTo, successCallbackOrText) {
 program
     .version(pkg.version)
     .option('-o, --orgName <orgName>', 'organization')
-    .option('-s, --serverUrl <serverUrl>', 'IA Server URL <serverUrl>', 'https://dev.appeariq.com/api')
+    .option('-s, --serverUrl <serverUrl>', 'IA Server URL <serverUrl>', pkg.defaults.server)
     .option('-u, --username <username>', 'Username')
     .option('-p, --password <password>', 'Password');
 
@@ -68,7 +68,7 @@ program
     .description('Display list of existent HTML5 Applications')
     .action(processArguments(services.getAppsList, function (result) {
         if (!result.length) {
-            utils.info('There are no applications in the library yet.');
+            utils.info('There are no applications in the platform yet.');
             return;
         }
 
@@ -97,7 +97,7 @@ program
 
 program
     .command('pub [<name>]')
-    .description('Publish HTML5 App to the library')
+    .description('Publish HTML5 App to the platform')
     .option('-l, --apiLevel <api level>', 'API level')
     .option('-m, --mock', 'is in the mock mode?')
     .option('-g, --global', 'is global?')
@@ -116,22 +116,25 @@ program
 
 program
     .command('unpub')
-    .description('Remove specific HTML5 App from the library')
+    .description('Remove specific HTML5 App from the platform')
     .option('-i, --id <application id>', 'The application id. If not specified, will be read from the manifest file.')
     .action(processArguments(services.deleteApp, function (appInfo) {
-        utils.info('App with ID: %s was successfully removed from the library.', appInfo.id);
+        utils.info('App with ID: %s was successfully removed from the platform.', appInfo.id);
     }));
 
 program
     .command('server')
     .description('Run local WebServer')
     .option('-n, --port <port number>', 'Port number', 8000)
-    .action(services.server.bind(services));
+    .action(function (params) {
+        services.server(params.port)
+            .then(function () {
+                utils.info('WebServer successfully started at http://localhost:%d/\nPress <CTRL> + <C> to shutdown.', params.port);
+            }, utils.error);
+    });
 
 program.parse(process.argv);
 
 if (!program.args.length) {
     program.help();
 }
-
-// strip <path> as tool should be run in context of something

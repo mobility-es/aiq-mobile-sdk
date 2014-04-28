@@ -3,6 +3,9 @@
   "version": "0.0.3",
   "description": "AppearIQ Mobile SDK",
   "author": "Appear Networks",
+  "defaults": {
+    "server": "https://dev.appeariq.com/api"
+  },
   "licenses": [
     {
       "type": "MIT",
