@@ -89,7 +89,7 @@ program
                 app.lastModified ? moment(app.lastModified).fromNow() : 'N/A',
                 app.minJsApiLevel || 0,
                 app.mock ? 'Yes'.warn : 'No'.info,
-                app['global'] ? 'Yes'.warn : 'No'.info
+                app.global ? 'Yes'.warn : 'No'.info
             ]);
         });
         console.log(table.toString());
