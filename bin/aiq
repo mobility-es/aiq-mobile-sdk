@@ -47,7 +47,10 @@ program
     .option('-o, --orgName <orgName>', 'organization')
     .option('-u, --username <username>', 'Username')
     .option('-p, --password <password>', 'Password')
-    .option('-s, --serverUrl [serverUrl]', 'IA Server URL [serverUrl]', pkg.defaults.server);
+    .option('-s, --serverUrl [serverUrl]', 'IA Server URL [serverUrl]', pkg.defaults.server)
+    .on('*', function () {
+        console.error('\n  error: command doesn\'t exist `%s\'\n', arguments[0]);
+    });
 
 program
     .command('login')
@@ -117,7 +120,7 @@ program
     }));
 
 program
-    .command('pub [<path>]')
+    .command('pub [path]')
     .description('Publish HTML5 App to the platform')
     .option('-n, --name <App name>', 'Name of the application')
     .option('-l, --apiLevel <api level>', 'API level')
@@ -128,7 +131,7 @@ program
     }));
 
 program
-    .command('update [<path>]')
+    .command('update [path]')
     .description('Update existent HTML5 App')
     .option('-m, --mock', 'is in the mock mode?')
     .option('-g, --global', 'is global?')
@@ -137,7 +140,7 @@ program
     }));
 
 program
-    .command('unpub [<path>]')
+    .command('unpub [path]')
     .description('Remove specific HTML5 App from the platform')
     .option('-i, --id <application id>', 'The application id. If not specified, will be read from the manifest file.')
     .action(processArguments(services.deleteApp, function (appInfo) {
@@ -145,7 +148,7 @@ program
     }));
 
 program
-    .command('server [<path>]')
+    .command('server [path]')
     .description('Run local WebServer')
     .option('-n, --port <port number>', 'Port number', 8000)
     .action(function (path, params) {
