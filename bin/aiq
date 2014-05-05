@@ -11,7 +11,7 @@ var pkg = require('../package.json'),
     path = require('path'),
 
     utils = require('../lib/utils'),
-    services = new (require('../lib/services'))(path.join(__dirname, '.aiqrc'), process.cwd());
+    services = new (require('../lib/services'))(path.join(utils.getUserHome(), '.aiqrc'), process.cwd());
 
 process.title = pkg.name;
 
