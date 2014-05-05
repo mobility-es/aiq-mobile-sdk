@@ -26,7 +26,7 @@ function processArguments (proxyTo, successCallbackOrText) {
                     if (typeof successCallbackOrText === 'function') {
                         successCallbackOrText.apply(null, arguments);
                     } else {
-                        utils.info.apply(null, successCallbackOrText);
+                        utils.info.call(null, successCallbackOrText);
                     }
                 },
                 utils.error
