@@ -2,35 +2,135 @@
 
 'use strict';
 
-var pkg = require('../package.json');
-var program = require('commander');
+var pkg = require('../package.json'),
+
+    Table = require('cli-table'),
+    moment = require('moment'),
+
+    program = require('commander'),
+    path = require('path'),
+
+    utils = require('../lib/utils'),
+    services = new (require('../lib/services'))(path.join(__dirname, '.aiqrc'), process.cwd());
 
 process.title = pkg.name;
 
-program.version(pkg.version);
+function processArguments (proxyTo, successCallbackOrText) {
+    return function () {
+        var args = arguments,
+            authInfo = args[args.length - 1].parent;
+
+        function handle () {
+            proxyTo.apply(services, args).then(
+                function () {
+                    if (typeof successCallbackOrText === 'function') {
+                        successCallbackOrText.apply(null, arguments);
+                    } else {
+                        utils.info.apply(null, successCallbackOrText);
+                    }
+                },
+                utils.error
+            );
+        }
+
+        // New Auth info provided
+        if (authInfo.orgName && authInfo.username) {
+            services.requestToken(authInfo).then(handle, utils.error);
+        } else {
+            handle();
+        }
+    };
+}
+
+program
+    .version(pkg.version)
+    .option('-o, --orgName <orgName>', 'organization')
+    .option('-s, --serverUrl <serverUrl>', 'IA Server URL <serverUrl>', pkg.defaults.server)
+    .option('-u, --username <username>', 'Username')
+    .option('-p, --password <password>', 'Password');
 
 program
     .command('login')
     .description('Login to the IA')
-    .option('-s, --serverUrl <url>', 'IA server URL', 'https://dev.appeariq.com')
-    .option('-o, --org <orgName>', 'OrgName')
-    .option('-u, --username <username>', 'Username')
-    .option('-p, --password <password>', 'Password')
-    .on('--help', function () {
-        console.log('  Examples:');
-        console.log('');
-        console.log('    $ aiq -s https://example.com -o Example -u admin -p s0m3th1ngs3qr3');
-        console.log('');
-    })
-    .action(function () {
-        console.log('in');
+    .action(function (params) {
+        services.login(params.parent).then(function () {
+            utils.info('AccessToken successfully stored for the future calls.');
+        }, utils.error);
     });
 
 program
     .command('logout')
-    .description('Logout')
-    .action(function () {
-        console.log('out');
+    .description('Destroy AccessToken.')
+    .action(processArguments(services.logout, 'AccessToken successfully removed.'));
+
+program
+    .command('list')
+    .description('Display list of existent HTML5 Applications')
+    .action(processArguments(services.getAppsList, function (result) {
+        if (!result.length) {
+            utils.info('There are no applications in the platform yet.');
+            return;
+        }
+
+        var table = new Table({
+            head: ['ID', 'Rev', 'Name', 'Modified on', 'API', 'Mock?', 'Global?']
+        });
+
+        // Apply Name-based sorting
+        result.sort(function (a, b) {
+            return a.name.localeCompare(b.name);
+        });
+
+        result.forEach(function (app) {
+            table.push([
+                app._id,
+                app._rev,
+                app.name,
+                app.lastModified ? moment(app.lastModified).fromNow() : 'N/A',
+                app.minJsApiLevel || 0,
+                app.mock ? 'Yes'.warn : 'No'.info,
+                app.global ? 'Yes'.warn : 'No'.info
+            ]);
+        });
+        console.log(table.toString());
+    }));
+
+program
+    .command('pub [<name>]')
+    .description('Publish HTML5 App to the platform')
+    .option('-l, --apiLevel <api level>', 'API level')
+    .option('-m, --mock', 'is in the mock mode?')
+    .option('-g, --global', 'is global?')
+    .action(processArguments(services.registerApp, function (appInfo) {
+        utils.info('New App [%s] with ID: %s was successfully created.', appInfo.name, appInfo.id);
+    }));
+
+program
+    .command('update')
+    .description('Update existent HTML5 App')
+    .option('-m, --mock', 'is in the mock mode?')
+    .option('-g, --global', 'is global?')
+    .action(processArguments(services.updateApp, function (appInfo) {
+        utils.info('App [%s] with ID: %s was successfully updated.', appInfo.name, appInfo.id);
+    }));
+
+program
+    .command('unpub')
+    .description('Remove specific HTML5 App from the platform')
+    .option('-i, --id <application id>', 'The application id. If not specified, will be read from the manifest file.')
+    .action(processArguments(services.deleteApp, function (appInfo) {
+        utils.info('App with ID: %s was successfully removed from the platform.', appInfo.id);
+    }));
+
+program
+    .command('server')
+    .description('Run local WebServer')
+    .option('-n, --port <port number>', 'Port number', 8000)
+    .action(function (params) {
+        services.server(params.port)
+            .then(function () {
+                utils.info('WebServer successfully started at http://localhost:%d/\nPress <CTRL> + <C> to shutdown.', params.port);
+            }, utils.error);
     });
 
 program.parse(process.argv);
