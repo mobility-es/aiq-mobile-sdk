@@ -45,15 +45,32 @@ function processArguments (proxyTo, successCallbackOrText) {
 program
     .version(pkg.version)
     .option('-o, --orgName <orgName>', 'organization')
-    .option('-s, --serverUrl <serverUrl>', 'IA Server URL <serverUrl>', pkg.defaults.server)
     .option('-u, --username <username>', 'Username')
-    .option('-p, --password <password>', 'Password');
+    .option('-p, --password <password>', 'Password')
+    .option('-s, --serverUrl [serverUrl]', 'IA Server URL [serverUrl]', pkg.defaults.server);
 
 program
     .command('login')
+    .usage('-o <orgName> -u <username> -p <password>')
     .description('Login to the IA')
+    .on('--help', function () {
+        this.parent.options.forEach(function (option) {
+            if (option.required !== 0 || option.optional !== 0) {
+                console.log('    ' + option.flags + '\t' + option.description);
+            }
+        });
+    })
     .action(function (params) {
-        services.login(params.parent).then(function () {
+        var args = params.parent;
+        // Check existence of required options
+        args.options.forEach(function (param) {
+            var argName = param.long.replace('--', '');
+            if (param.required && !args[argName]) {
+                console.error('\n  error: missing required option `%s\'\n', param.long);
+                process.exit(1);
+            }
+        });
+        services.login(args).then(function () {
             utils.info('AccessToken successfully stored for the future calls.');
         }, utils.error);
     });
