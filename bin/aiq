@@ -60,17 +60,21 @@ program
             }
         });
     })
-    .action(function (params) {
-        var args = params.parent;
+    .action(function () {
+        //HACK: in case of wrong call eg. "login -o org -p password -us ername"
+        // "arguments" object will contain more that 1 element,
+        // i.e. it is not safe to retrieve "params" object as regular func parameter
+        var params = arguments[arguments.length - 1].parent;
+
         // Check existence of required options
-        args.options.forEach(function (param) {
+        params.options.forEach(function (param) {
             var argName = param.long.replace('--', '');
-            if (param.required && !args[argName]) {
+            if (param.required && !params[argName]) {
                 console.error('\n  error: missing required option `%s\'\n', param.long);
                 process.exit(1);
             }
         });
-        services.login(args).then(function () {
+        services.login(params).then(function () {
             utils.info('AccessToken successfully stored for the future calls.');
         }, utils.error);
     });
