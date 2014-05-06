@@ -122,7 +122,7 @@ program
 program
     .command('pub [path]')
     .description('Publish HTML5 App to the platform')
-    .option('-n, --name <App name>', 'Name of the application')
+    .option('-n, --name <App name>', 'Name of the application. If isn\'t provided, value from manifest.json will be used')
     .option('-l, --apiLevel <api level>', 'API level')
     .option('-m, --mock', 'is in the mock mode?')
     .option('-g, --global', 'is global?')
