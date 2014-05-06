@@ -102,7 +102,7 @@ program
 
         // Apply Name-based sorting
         result.sort(function (a, b) {
-            return a.name.localeCompare(b.name);
+            return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
         });
 
         result.forEach(function (app) {
