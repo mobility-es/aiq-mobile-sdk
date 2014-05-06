@@ -16,13 +16,30 @@
 
     Commands:
 
-      login [options]        Login to the IA
-      logout                 Logout
+      login                  Login to the IA
+      logout                 Destroy AccessToken
+      list                   Display list of existent HTML5 Applications
+      pub [options] [path]   Publish HTML5 App to the platform
+      update [options] [path] Update existent HTML5 App
+      unpub [options] [path] Remove specific HTML5 App from the platform
+      server [options] [path] Run local WebServer
 
     Options:
 
-      -h, --help     output usage information
-      -V, --version  output the version number
+      -h, --help                   output usage information
+      -V, --version                output the version number
+      -o, --orgName <orgName>      organization
+      -u, --username <username>    Username
+      -p, --password <password>    Password
+      -s, --serverUrl [serverUrl]  IA Server URL [serverUrl]
+
+## Testing
+
+In order to test specific branch:
+
+  * Clone the repository & checkout to the specific branch
+  * Run `npm i` in the root of the repository
+  * Use `./bin/aiq`
 
 ## License
 

@@ -121,11 +121,11 @@ program
 
 program
     .command('pub [path]')
-    .description('Publish HTML5 App to the platform')
-    .option('-n, --name <App name>', 'Name of the application. If isn\'t provided, value from manifest.json will be used')
-    .option('-l, --apiLevel <api level>', 'API level')
-    .option('-m, --mock', 'is in the mock mode?')
-    .option('-g, --global', 'is global?')
+    .description('Publishes a new application to your organization on AIQ Mobility Platform.')
+    .option('-n, --name <App name>', 'Name of the application. If not provided, value from manifest.json file will be used.')
+    .option('-l, --apiLevel <n>', 'Integer value indicating the minimum JS API level.If not provided, value from manifest.json file will be used. The default value is 1.', parseInt, 1)
+    .option('-m, --mock', 'Enable mock mode.')
+    .option('-g, --global', 'Makes the application global, so all users in the organization can access it.')
     .action(processArguments(services.registerApp, function (appInfo) {
         utils.info('New App [%s] with ID: %s was successfully created.', appInfo.name, appInfo.id);
     }));
@@ -133,8 +133,8 @@ program
 program
     .command('update [path]')
     .description('Update existent HTML5 App')
-    .option('-m, --mock', 'is in the mock mode?')
-    .option('-g, --global', 'is global?')
+    .option('-m, --mock', 'Enable mock mode.')
+    .option('-g, --global', 'Makes the application global, so all users in the organization can access it.')
     .action(processArguments(services.updateApp, function (appInfo) {
         utils.info('App [%s] with ID: %s was successfully updated.', appInfo.name, appInfo.id);
     }));
