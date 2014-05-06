@@ -123,7 +123,7 @@ program
     .command('pub [path]')
     .description('Publishes a new application to your organization on AIQ Mobility Platform.')
     .option('-n, --name <App name>', 'Name of the application. If not provided, value from manifest.json file will be used.')
-    .option('-l, --apiLevel <n>', 'Integer value indicating the minimum JS API level.If not provided, value from manifest.json file will be used. The default value is 1.', parseInt, 1)
+    .option('-l, --apiLevel <n>', 'Minimum JS API level, default is 1. If not provided, value from manifest.json file will be used.', parseInt, 1) // jshint ignore:line
     .option('-m, --mock', 'Enable mock mode.')
     .option('-g, --global', 'Makes the application global, so all users in the organization can access it.')
     .action(processArguments(services.registerApp, function (appInfo) {
