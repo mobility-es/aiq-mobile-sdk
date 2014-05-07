@@ -16,22 +16,18 @@
 
     Commands:
 
-      login                  Login to the IA
-      logout                 Destroy AccessToken
-      list                   Display list of existent HTML5 Applications
-      pub [options] [path]   Publish HTML5 App to the platform
-      update [options] [path] Update existent HTML5 App
-      unpub [options] [path] Remove specific HTML5 App from the platform
-      server [options] [path] Run local WebServer
+      login [options] [serverUrl]    authenticate against the platform and stores the access token
+      logout [options]               destroy the stored access token
+      list [options]                 display list of apps on platform
+      publish [options] [path]       publish a new app to platform
+      update [options] [path]        update an existing app
+      unpublish [options] [path]     remove specific app from platform
+      run [options] [path]           run the app on a local WebServer
 
     Options:
 
-      -h, --help                   output usage information
-      -V, --version                output the version number
-      -o, --orgName <orgName>      organization
-      -u, --username <username>    Username
-      -p, --password <password>    Password
-      -s, --serverUrl [serverUrl]  IA Server URL [serverUrl]
+      -h, --help     output usage information
+      -v, --version  output the AIQ mobile sdk version
 
 ## Testing
 
