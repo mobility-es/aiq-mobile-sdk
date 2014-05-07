@@ -7,9 +7,9 @@ var pkg = require('../package.json'),
     Table = require('cli-table'),
     moment = require('moment'),
 
-    program = require('commander'),
     path = require('path'),
 
+    program = require('../lib/commander'),
     utils = require('../lib/utils'),
     services = new (require('../lib/services'))(path.join(utils.getUserHome(), '.aiqrc'), process.cwd());
 
@@ -18,7 +18,7 @@ process.title = pkg.name;
 function processArguments (proxyTo, successCallbackOrText) {
     return function () {
         var args = arguments,
-            authInfo = args[args.length - 1].parent;
+            authInfo = args[args.length - 1];
 
         function handle () {
             proxyTo.apply(services, args).then(
@@ -42,32 +42,38 @@ function processArguments (proxyTo, successCallbackOrText) {
     };
 }
 
+var serverUrlDescr = 'platform URL. If not provided, AIQ development environment (' + pkg.defaults.server + ') will be used',
+    pathUsage = [
+        '[options] [<path>]',
+        '',
+        '    <path>: The path to the application folder. If not specified, the current working directory will be used.'
+    ].join('\n');
+
 program
-    .version(pkg.version)
-    .option('-o, --orgName <orgName>', 'organization')
-    .option('-u, --username <username>', 'Username')
-    .option('-p, --password <password>', 'Password')
-    .option('-s, --serverUrl [serverUrl]', 'IA Server URL [serverUrl]', pkg.defaults.server)
+    .option('-v, --version', 'output the AIQ mobile sdk version', function () {
+        console.log(pkg.version);
+        process.exit(0);
+    })
     .on('*', function () {
         console.error('\n  error: command doesn\'t exist `%s\'\n', arguments[0]);
+        process.exit(1);
     });
 
 program
-    .command('login')
-    .usage('-o <orgName> -u <username> -p <password>')
-    .description('Login to the IA')
-    .on('--help', function () {
-        this.parent.options.forEach(function (option) {
-            if (option.required !== 0 || option.optional !== 0) {
-                console.log('    ' + option.flags + '\t' + option.description);
-            }
-        });
-    })
-    .action(function () {
+    .command('login [serverUrl]')
+    .description('authenticate against the platform and stores the access token')
+    .longDescription('This command authenticates against the platform and stores the access token.')
+    .usage('-o <orgName> -u <username> -p <password> [<serverUrl>]\n\t<serverUrl>  ' + serverUrlDescr)
+    .option('-o, --orgName <orgName>', 'organization')
+    .option('-u, --username <username>', 'username')
+    .option('-p, --password <password>', 'password')
+    .action(function (serverUrl) {
         //HACK: in case of wrong call eg. "login -o org -p password -us ername"
         // "arguments" object will contain more that 1 element,
         // i.e. it is not safe to retrieve "params" object as regular func parameter
-        var params = arguments[arguments.length - 1].parent;
+        var params = arguments[arguments.length - 1];
+
+        params.serverUrl = serverUrl || pkg.defaults.server;
 
         // Check existence of required options
         params.options.forEach(function (param) {
@@ -77,6 +83,7 @@ program
                 process.exit(1);
             }
         });
+
         services.login(params).then(function () {
             utils.info('AccessToken successfully stored for the future calls.');
         }, utils.error);
@@ -84,12 +91,21 @@ program
 
 program
     .command('logout')
-    .description('Destroy AccessToken.')
+    .description('destroy the stored access token')
+    .longDescription('')
+    .option('-o, --orgName <orgName>', 'organization')
+    .option('-u, --username <username>', 'username')
+    .option('-p, --password <password>', 'password')
+    .option('-s, --serverUrl [serverUrl]', serverUrlDescr, pkg.defaults.server)
     .action(processArguments(services.logout, 'AccessToken successfully removed.'));
 
 program
     .command('list')
-    .description('Display list of existent HTML5 Applications')
+    .description('display list of apps on platform')
+    .option('-o, --orgName <orgName>', 'organization')
+    .option('-u, --username <username>', 'username')
+    .option('-p, --password <password>', 'password')
+    .option('-s, --serverUrl [serverUrl]', serverUrlDescr, pkg.defaults.server)
     .action(processArguments(services.getAppsList, function (result) {
         if (!result.length) {
             utils.info('There are no applications in the platform yet.');
@@ -120,37 +136,60 @@ program
     }));
 
 program
-    .command('pub [path]')
-    .description('Publishes a new application to your organization on AIQ Mobility Platform.')
-    .option('-n, --name <App name>', 'Name of the application. If not provided, value from manifest.json file will be used.')
-    .option('-l, --apiLevel <n>', 'Minimum JS API level, default is 1. If not provided, value from manifest.json file will be used.', parseInt, 1) // jshint ignore:line
-    .option('-m, --mock', 'Enable mock mode.')
-    .option('-g, --global', 'Makes the application global, so all users in the organization can access it.')
+    .command('publish [path]')
+    .usage(pathUsage)
+    .description('publish a new app to platform')
+    .longDescription('This command registers a new application on platform and deploys the content of the application folder as a new app.') // jshint ignore:line
+    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not be unique') // jshint ignore:line
+    .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1', 1) // jshint ignore:line
+    .option('-m, --mock', 'enable mock mode')
+    .option('-g, --global', 'make the application global, so all users in the organization can access it')
+    .option('-o, --orgName <orgName>', 'organization')
+    .option('-u, --username <username>', 'username')
+    .option('-p, --password <password>', 'password')
+    .option('-s, --serverUrl [serverUrl]', serverUrlDescr, pkg.defaults.server)
+    .note('A new app will be always created on platform and the app manifest file will be created/updated according to provided parameters.') // jshint ignore:line
     .action(processArguments(services.registerApp, function (appInfo) {
         utils.info('New App [%s] with ID: %s was successfully created.', appInfo.name, appInfo.id);
     }));
 
 program
     .command('update [path]')
-    .description('Update existent HTML5 App')
-    .option('-m, --mock', 'Enable mock mode.')
-    .option('-g, --global', 'Makes the application global, so all users in the organization can access it.')
+    .usage(pathUsage)
+    .description('update an existing app')
+    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not be unique') // jshint ignore:line
+    .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1', 1) // jshint ignore:line
+    .option('-m, --mock', 'enable mock mode')
+    .option('-g, --global', 'make the application global, so all users in the organization can access it')
+    .option('-o, --orgName <orgName>', 'organization')
+    .option('-u, --username <username>', 'username')
+    .option('-p, --password <password>', 'password')
+    .option('-s, --serverUrl [serverUrl]', serverUrlDescr, pkg.defaults.server)
     .action(processArguments(services.updateApp, function (appInfo) {
         utils.info('App [%s] with ID: %s was successfully updated.', appInfo.name, appInfo.id);
     }));
 
 program
-    .command('unpub [path]')
-    .description('Remove specific HTML5 App from the platform')
-    .option('-i, --id <application id>', 'The application id. If not specified, will be read from the manifest file.')
+    .command('unpublish [path]')
+    .usage(pathUsage)
+    .description('remove specific app from platform')
+    .longDescription('This command removes an application from the platform and consequently form mobile devices. It also removes the app id from the app manifest file.') // jshint ignore:line
+    .option('-i, --id <application id>', 'application id. If not specified, will be read from the manifest file')
+    .option('-o, --orgName <orgName>', 'organization')
+    .option('-u, --username <username>', 'username')
+    .option('-p, --password <password>', 'password')
+    .option('-s, --serverUrl [serverUrl]', serverUrlDescr, pkg.defaults.server)
+    .note('If the provided application id is different from the id in the app manifest file, the app id will NOT be removed from the app manifest file.') // jshint ignore:line
     .action(processArguments(services.deleteApp, function (appInfo) {
         utils.info('App with ID: %s was successfully removed from the platform.', appInfo.id);
     }));
 
 program
-    .command('server [path]')
-    .description('Run local WebServer')
-    .option('-n, --port <port number>', 'Port number', 8000)
+    .command('run [path]')
+    .usage(pathUsage)
+    .description('run the app on a local WebServer')
+    .longDescription('This command runs the application on a local web server, so it can be tested in browser in mock mode.')
+    .option('-p, --port <n>', 'port number, default is 8000', 8000)
     .action(function (path, params) {
         services.server(params.port, path)
             .then(function () {
