@@ -4,6 +4,17 @@
 
   [![Build Status](https://travis-ci.org/appear/aiq-mobile-sdk.png?branch=master)](https://travis-ci.org/appear/aiq-mobile-sdk)
 
+
+## Pre-Requirements:
+
+  * [NodeJS](http://nodejs.org/download/)
+      * **Mac/Win** - use package from the URL above
+      * **Linux (debian-based)** - run:
+
+            sudo add-apt-repository ppa:chris-lea/node.js
+            sudo apt-get update
+            sudo apt-get install nodejs
+
 ## Installation
 
     $ npm install -g aiq
