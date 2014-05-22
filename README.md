@@ -52,7 +52,7 @@ In order to test specific branch:
 
 (The MIT License)
 
-Copyright (c) 2013 Appear Networks
+Copyright (c) 2014 Appear Networks
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
