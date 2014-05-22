@@ -141,7 +141,7 @@ program
     .description('publish a new app to platform')
     .longDescription('This command registers a new application on platform and deploys the content of the application folder as a new app.') // jshint ignore:line
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not be unique') // jshint ignore:line
-    .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1', 1) // jshint ignore:line
+    .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock', 'enable mock mode')
     .option('-g, --global', 'make the application global, so all users in the organization can access it')
     .option('-o, --orgName <orgName>', 'organization')
@@ -158,7 +158,7 @@ program
     .usage(pathUsage)
     .description('update an existing app')
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not be unique') // jshint ignore:line
-    .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1', 1) // jshint ignore:line
+    .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock', 'enable mock mode')
     .option('-g, --global', 'make the application global, so all users in the organization can access it')
     .option('-o, --orgName <orgName>', 'organization')
