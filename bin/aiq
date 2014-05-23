@@ -160,11 +160,10 @@ program
     });
 
 program
-    .command('unpublish <id> [path]')
-    .usage('[options] <id> ' + pathUsage)
+    .command('unpublish <id>')
     .description('remove specific app from platform')
     .longDescription('This command removes an application from the platform and consequently form mobile devices.')
-    .action(function (id, path) {
+    .action(function (id) {
         id = id.trim();
 
         if (!id) {
@@ -172,7 +171,7 @@ program
            process.exit(1);
         }
 
-        services.deleteApp(id, path).then(function (appInfo) {
+        services.deleteApp(id).then(function (appInfo) {
             utils.info('App with ID: %s was successfully removed from the platform.', appInfo.id);
         }, utils.error);
     });
