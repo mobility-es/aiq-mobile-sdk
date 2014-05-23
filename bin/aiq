@@ -17,7 +17,7 @@ var pkg = require('../package.json'),
 process.title = pkg.name;
 
 var pathUsage = [
-        '[<path>]',
+        '[options] [<path>]',
         '',
         '    <path>: The path to the application folder. If not specified, the current working directory will be used.'
     ].join('\n');
@@ -33,22 +33,21 @@ program
     });
 
 program
-    .command('login [serverUrl]')
+    .command('login')
     .description('authenticate against the platform and stores the access token')
     .longDescription('This command authenticates against the platform and stores the access token.')
-    .usage('-o <orgName> -u <username> -p <password> [<serverUrl>]\n\t<serverUrl>  platform URL. If not provided, AIQ development environment (' + pkg.defaults.server + ') will be used') // jshint ignore:line
     .option('-o, --orgName <orgName>', 'organization')
     .option('-u, --username <username>', 'username')
     .option('-p, --password <password>', 'password')
-    .action(function (serverUrl) {
-        //HACK: in case of wrong call eg. "login -o org -p password -us ername"
-        // "arguments" object will contain more that 1 element,
-        // i.e. it is not safe to retrieve "params" object as regular func parameter
-        var params = arguments[arguments.length - 1],
-            protocol = '';
+    .option('-s, --serverUrl <serverUrl>', 'platform URL. If not provided, AIQ development environment (' + pkg.defaults.server + ') will be used') // jshint ignore:line
+    .action(function () {
 
-        params.serverUrl = serverUrl || pkg.defaults.server;
-        protocol = url.parse(params.serverUrl).protocol;
+        //HACK: to support Commander
+        var params = arguments[arguments.length - 1];
+
+        params.serverUrl = params.serverUrl || pkg.defaults.server;
+
+        var protocol = url.parse(params.serverUrl).protocol;
         if (protocol !== 'https:' && protocol !== 'http:') {
             utils.error('Invalid Server\'s URL.');
             process.exit(1);
@@ -116,7 +115,7 @@ program
 
 program
     .command('publish [path]')
-    .usage('[options] ' + pathUsage)
+    .usage(pathUsage)
     .description('publish a new app to platform')
     .longDescription('This command registers a new application on platform and deploys the content of the application folder as a new app.')
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
@@ -124,26 +123,27 @@ program
     .option('-m, --mock', 'enable mock mode')
     .option('-g, --global', 'make the application global, so all users in the organization can access it')
     .note('A new app will be always created on platform and the app manifest file will be created/updated according to provided parameters.') // jshint ignore:line
-    .action(function (path, params) {
+    .action(function (path) {
+        //HACK: to support Commander
+        var params = arguments[arguments.length - 1];
         services.registerApp(path, params).then(function (appInfo) {
             utils.info('New App [%s] with ID: %s was successfully created.', appInfo.name, appInfo.id);
         }, utils.error);
     });
 
 program
-    .command('update <id>')
-    .usage('[options] <id> ' + pathUsage)
+    .command('update [path]')
+    .usage(pathUsage)
     .description('update an existing app')
+    .option('-i, --id <app id>', 'application id. To find out what is your application id use "aiq list" command')
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock', 'enable mock mode')
     .option('-g, --global', 'make the application global, so all users in the organization can access it')
-    .action(function () {
-
-        //HACK: Commander behaves wrong for the "update _id_" call
+    .action(function (path) {
+        //HACK: to support Commander
         var params = arguments[arguments.length - 1],
-            id = arguments[0].trim(),
-            path = arguments.length === 3 ? arguments[1] : null;
+            id = (params.id || '').trim();
 
         if (!id) {
            utils.error('Wrong ID.');
@@ -160,11 +160,14 @@ program
     });
 
 program
-    .command('unpublish <id>')
+    .command('unpublish')
     .description('remove specific app from platform')
     .longDescription('This command removes an application from the platform and consequently form mobile devices.')
-    .action(function (id) {
-        id = id.trim();
+    .option('-i, --id <app id>', 'application id. To find out what is your application id use "aiq list" command')
+    .action(function () {
+        //HACK: to support Commander
+        var params = arguments[arguments.length - 1],
+            id = (params.id || '').trim();
 
         if (!id) {
            utils.error('Wrong ID.');
@@ -178,11 +181,13 @@ program
 
 program
     .command('run [path]')
-    .usage('[options] ' + pathUsage)
+    .usage(pathUsage)
     .description('run the app on a local WebServer')
     .longDescription('This command runs the application on a local web server, so it can be tested in browser in mock mode.')
     .option('-p, --port <n>', 'port number, default is 8000', 8000)
-    .action(function (path, params) {
+    .action(function (path) {
+        //HACK: to support Commander
+        var params = arguments[arguments.length - 1];
         services.server(params.port, path).then(function () {
             utils.info('WebServer successfully started at http://localhost:%d/\nPress <CTRL> + <C> to shutdown.', params.port);
         }, utils.error);
