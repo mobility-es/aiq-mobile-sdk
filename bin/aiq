@@ -33,6 +33,26 @@ program
     });
 
 program
+    .command('user')
+    .description('display information about current session')
+    .longDescription('This command display information about current session.')
+    .action(function () {
+        var info = services.getInfo();
+        if (info.username) {
+            var table = new Table();
+
+            table.push(['Server', info.serverUrl]);
+            table.push(['Organization', info.orgName]);
+            table.push(['Username', info.username]);
+
+            console.log(table.toString());
+        } else {
+            utils.error('Client doesn\'t seem to be authorized.');
+            process.exit(1);
+        }
+    });
+
+program
     .command('login')
     .description('authenticate against the platform and stores the access token')
     .longDescription('This command authenticates against the platform and stores the access token.')
@@ -70,7 +90,7 @@ program
 program
     .command('logout')
     .description('destroy the stored access token')
-    .longDescription('')
+    .longDescription('This command destroys the stored access token.')
     .action(function () {
         services.logout().then(function () {
             utils.info('AccessToken successfully removed.');
@@ -80,6 +100,7 @@ program
 program
     .command('list')
     .description('display list of apps on platform')
+    .longDescription('This command displays list of applications on platform.')
     .action(function () {
         services.getAppsList().then(function (result) {
 
@@ -126,7 +147,8 @@ program
     .action(function (path) {
         //HACK: to support Commander
         var params = arguments[arguments.length - 1];
-        services.registerApp(path, params).then(function (appInfo) {
+        params.path = path;
+        services.registerApp(params).then(function (appInfo) {
             utils.info('New App [%s] with ID: %s was successfully created.', appInfo.name, appInfo.id);
         }, utils.error);
     });
@@ -154,7 +176,9 @@ program
             params.name = params.name.trim();
         }
 
-        services.updateApp(id, path, params).then(function (appInfo) {
+        params.path = path;
+
+        services.updateApp(id, params).then(function (appInfo) {
             utils.info('App [%s] with ID: %s was successfully updated.', appInfo.name, appInfo.id);
         }, utils.error);
     });
