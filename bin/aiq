@@ -50,7 +50,7 @@ program
         params.serverUrl = serverUrl || pkg.defaults.server;
         protocol = url.parse(params.serverUrl).protocol;
         if (protocol !== 'https:' && protocol !== 'http:') {
-            utils.error('Wrong Server\'s protocol.');
+            utils.error('Invalid Server\'s URL.');
             process.exit(1);
         }
 
