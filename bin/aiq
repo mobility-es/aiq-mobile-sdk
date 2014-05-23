@@ -142,8 +142,13 @@ program
 
         //HACK: Commander behaves wrong for the "update _id_" call
         var params = arguments[arguments.length - 1],
-            id = arguments[0],
+            id = arguments[0].trim(),
             path = arguments.length === 3 ? arguments[1] : null;
+
+        if (!id) {
+           utils.error('Wrong ID.');
+           process.exit(1);
+        }
 
         services.updateApp(id, path, params).then(function (appInfo) {
             utils.info('App [%s] with ID: %s was successfully updated.', appInfo.name, appInfo.id);
@@ -156,6 +161,13 @@ program
     .description('remove specific app from platform')
     .longDescription('This command removes an application from the platform and consequently form mobile devices.')
     .action(function (id, path) {
+        id = id.trim();
+
+        if (!id) {
+           utils.error('Wrong ID.');
+           process.exit(1);
+        }
+
         services.deleteApp(id, path).then(function (appInfo) {
             utils.info('App with ID: %s was successfully removed from the platform.', appInfo.id);
         }, utils.error);
