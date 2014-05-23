@@ -150,6 +150,10 @@ program
            process.exit(1);
         }
 
+        if (params.name) {
+            params.name = params.name.trim();
+        }
+
         services.updateApp(id, path, params).then(function (appInfo) {
             utils.info('App [%s] with ID: %s was successfully updated.', appInfo.name, appInfo.id);
         }, utils.error);
