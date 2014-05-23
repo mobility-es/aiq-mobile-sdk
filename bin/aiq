@@ -7,6 +7,7 @@ var pkg = require('../package.json'),
     Table = require('cli-table'),
     moment = require('moment'),
 
+    url = require('url'),
     path = require('path'),
 
     program = require('../lib/commander'),
@@ -43,9 +44,15 @@ program
         //HACK: in case of wrong call eg. "login -o org -p password -us ername"
         // "arguments" object will contain more that 1 element,
         // i.e. it is not safe to retrieve "params" object as regular func parameter
-        var params = arguments[arguments.length - 1];
+        var params = arguments[arguments.length - 1],
+            protocol = '';
 
         params.serverUrl = serverUrl || pkg.defaults.server;
+        protocol = url.parse(params.serverUrl).protocol;
+        if (protocol !== 'https:' && protocol !== 'http:') {
+            utils.error('Wrong Server\'s protocol.');
+            process.exit(1);
+        }
 
         // Check existence of required options
         params.options.forEach(function (param) {
