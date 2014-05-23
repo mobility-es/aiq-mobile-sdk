@@ -131,7 +131,13 @@ program
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock', 'enable mock mode')
     .option('-g, --global', 'make the application global, so all users in the organization can access it')
-    .action(function (id, path, params) {
+    .action(function () {
+
+        //HACK: Commander behaves wrong for the "update _id_" call
+        var params = arguments[arguments.length - 1],
+            id = arguments[0],
+            path = arguments.length === 3 ? arguments[1] : null;
+
         services.updateApp(id, path, params).then(function (appInfo) {
             utils.info('App [%s] with ID: %s was successfully updated.', appInfo.name, appInfo.id);
         }, utils.error);
