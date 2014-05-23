@@ -16,7 +16,7 @@ var pkg = require('../package.json'),
 process.title = pkg.name;
 
 var pathUsage = [
-        '[options] [<path>]',
+        '[<path>]',
         '',
         '    <path>: The path to the application folder. If not specified, the current working directory will be used.'
     ].join('\n');
@@ -109,7 +109,7 @@ program
 
 program
     .command('publish [path]')
-    .usage(pathUsage)
+    .usage('[options] ' + pathUsage)
     .description('publish a new app to platform')
     .longDescription('This command registers a new application on platform and deploys the content of the application folder as a new app.')
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
@@ -124,8 +124,8 @@ program
     });
 
 program
-    .command('update <id> [path]')
-    .usage(pathUsage)
+    .command('update <id>')
+    .usage('[options] <id> ' + pathUsage)
     .description('update an existing app')
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
@@ -139,7 +139,7 @@ program
 
 program
     .command('unpublish <id> [path]')
-    .usage(pathUsage)
+    .usage('[options] <id> ' + pathUsage)
     .description('remove specific app from platform')
     .longDescription('This command removes an application from the platform and consequently form mobile devices.')
     .action(function (id, path) {
@@ -150,7 +150,7 @@ program
 
 program
     .command('run [path]')
-    .usage(pathUsage)
+    .usage('[options] ' + pathUsage)
     .description('run the app on a local WebServer')
     .longDescription('This command runs the application on a local web server, so it can be tested in browser in mock mode.')
     .option('-p, --port <n>', 'port number, default is 8000', 8000)
