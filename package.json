@@ -16,8 +16,10 @@
     "aiq": "bin/aiq"
   },
   "engines": {
-    "node": ">= 0.8.0"
+    "node": ">= 0.10.0",
+    "npm": ">= 1.4.6"
   },
+  "engineStrict": true,
   "scripts": {
     "test": "grunt test"
   },
@@ -41,7 +43,6 @@
     "cli-table": "^0.3.0",
     "colors": "^0.6.2",
     "commander": "^2.2.0",
-    "inquirer": "^0.4.1",
     "moment": "^2.6.0",
     "q": "^1.0.1",
     "restler": "^3.2.1"
