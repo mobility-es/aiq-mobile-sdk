@@ -27,12 +27,13 @@
 
     Commands:
 
-      login [options] [serverUrl]    authenticate against the platform and stores the access token
-      logout [options]               destroy the stored access token
-      list [options]                 display list of apps on platform
+      user                           display information about current session
+      login [options]                authenticate against the platform and stores the access token
+      logout                         destroy the stored access token
+      list                           display list of apps on platform
       publish [options] [path]       publish a new app to platform
       update [options] [path]        update an existing app
-      unpublish [options] [path]     remove specific app from platform
+      unpublish [options]            remove specific app from platform
       run [options] [path]           run the app on a local WebServer
 
     Options:
