@@ -168,7 +168,7 @@ program
             id = (params.id || '').trim();
 
         if (!id) {
-           utils.error('Wrong ID.');
+           console.error('\n  error: missing required option `id\'\n');
            process.exit(1);
         }
 
@@ -194,7 +194,7 @@ program
             id = (params.id || '').trim();
 
         if (!id) {
-           utils.error('Wrong ID.');
+           console.error('\n  error: missing required option `id\'\n');
            process.exit(1);
         }
 
