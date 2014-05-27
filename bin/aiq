@@ -6,6 +6,7 @@ var pkg = require('../package.json'),
 
     Table = require('cli-table'),
     moment = require('moment'),
+    jsesc = require('jsesc'),
 
     url = require('url'),
     path = require('path'),
@@ -122,7 +123,7 @@ program
                 table.push([
                     app._id,
                     app._rev,
-                    app.name,
+                    jsesc(app.name),
                     app.lastModified ? moment(app.lastModified).fromNow() : 'N/A',
                     app.minJsApiLevel || 0,
                     app.mock ? 'Yes'.warn : 'No'.info,
@@ -172,14 +173,10 @@ program
            process.exit(1);
         }
 
-        if (params.name) {
-            params.name = params.name.trim();
-        }
-
         params.path = path;
 
         services.updateApp(id, params).then(function (appInfo) {
-            utils.info('App [%s] with ID: %s was successfully updated.', appInfo.name, appInfo.id);
+            utils.info('App [%s] with ID: %s was successfully updated.', jsesc(appInfo.name), appInfo.id);
         }, utils.error);
     });
 
