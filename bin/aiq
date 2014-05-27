@@ -30,6 +30,7 @@ program
     })
     .on('*', function () {
         console.error('\n  error: command doesn\'t exist `%s\'\n', arguments[0]);
+        this.help();
         process.exit(1);
     });
 
@@ -39,7 +40,7 @@ program
     .longDescription('This command display information about current session.')
     .action(function () {
         var info = services.getInfo();
-        if (info.username) {
+        if (info) {
             var table = new Table();
 
             table.push(['Server', info.serverUrl]);
@@ -78,7 +79,8 @@ program
         params.options.forEach(function (param) {
             var argName = param.long.replace('--', '');
             if (param.required && !params[argName]) {
-                console.error('\n  error: missing required option `%s\'\n', param.long);
+                console.error('\n  error: missing required option `%s\'', param.long);
+                params.help();
                 process.exit(1);
             }
         });
@@ -142,7 +144,7 @@ program
     .longDescription('This command registers a new application on platform and deploys the content of the application folder as a new app.')
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
-    .option('-m, --mock', 'enable mock mode')
+    .option('-m, --mock <true|false>', 'enable mock mode')
     .option('-g, --global', 'make the application global, so all users in the organization can access it')
     .note('A new app will be always created on platform and the app manifest file will be created/updated according to provided parameters.') // jshint ignore:line
     .action(function (path) {
@@ -161,15 +163,16 @@ program
     .option('-i, --id <app id>', 'application id. To find out what is your application id use "aiq list" command')
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
-    .option('-m, --mock', 'enable mock mode')
-    .option('-g, --global', 'make the application global, so all users in the organization can access it')
+    .option('-m, --mock <true|false>', 'enable mock mode')
+    .option('-g, --global ', 'make the application global, so all users in the organization can access it')
     .action(function (path) {
         //HACK: to support Commander
         var params = arguments[arguments.length - 1],
             id = (params.id || '').trim();
 
         if (!id) {
-           console.error('\n  error: missing required option `id\'\n');
+           console.error('\n  error: missing required option `id\'');
+           params.help();
            process.exit(1);
         }
 
@@ -191,7 +194,8 @@ program
             id = (params.id || '').trim();
 
         if (!id) {
-           console.error('\n  error: missing required option `id\'\n');
+           console.error('\n  error: missing required option `id\'');
+           params.help();
            process.exit(1);
         }
 
