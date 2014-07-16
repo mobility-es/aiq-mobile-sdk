@@ -22,7 +22,13 @@ module.exports = function (grunt) {
         },
 
         nodeunit: {
-            tests: ['test/*_test.js']
+            tests: ['test/*_test.js'], 
+			options: {
+			    reporter: 'junit',
+				reporterOptions: {
+					output: 'test/output'
+				}
+			}
         }
     });
 
