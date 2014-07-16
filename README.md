@@ -5,7 +5,7 @@
   [![Build Status](https://travis-ci.org/appear/aiq-mobile-sdk.png?branch=master)](https://travis-ci.org/appear/aiq-mobile-sdk)
 
 
-## Pre-Requirements:
+## Pre-Requirements
 
   * [NodeJS](http://nodejs.org/download/)
       * **Mac/Win** - use package from the URL above
