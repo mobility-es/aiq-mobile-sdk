@@ -2,6 +2,7 @@
 
 var Q = require('q'),
     fs = require('fs'),
+    wrench = require('wrench'),
 
     rest = require('../lib/restler'),
     utils = require('../lib/utils'),
@@ -425,6 +426,110 @@ module.exports = {
                 test.ifError(true);
                 test.done();
             });
+        }
+    },
+
+    generateApp: {
+        'Should validate App Name': function (test) {
+            this.services.generateApp('      ', {}).then(function () {
+                test.ifError(true);
+                test.done();
+            }, function (err) {
+                test.equal(err, 'Application name is required.');
+                test.done();
+            });
+        },
+        'Should validate API level': {
+            nan: function (test) {
+                this.services.generateApp('123', {apiLevel: 'a'}).then(function () {
+                    test.ifError(true);
+                    test.done();
+                }, function (err) {
+                    test.equal(err, 'Api level should be numeric and be in the range 1-65535.');
+                    test.done();
+                });
+            },
+            min: function (test) {
+                this.services.generateApp('123', {apiLevel: -1}).then(function () {
+                    test.ifError(true);
+                    test.done();
+                }, function (err) {
+                    test.equal(err, 'Api level should be numeric and be in the range 1-65535.');
+                    test.done();
+                });
+            },
+            max: function (test) {
+                this.services.generateApp('123', {apiLevel: 65536}).then(function () {
+                    test.ifError(true);
+                    test.done();
+                }, function (err) {
+                    test.equal(err, 'Api level should be numeric and be in the range 1-65535.');
+                    test.done();
+                });
+            },
+        },
+        'Should validate Path': {
+            writable: function (test) {
+                this.services.generateApp('some', {path: '/dev'}).then(function () {
+                    test.ifError(true);
+                    test.done();
+                }, function (err) {
+                    test.equal(err, 'Path is not writable.');
+                    test.done();
+                });
+            },
+            exists: function (test) {
+                this.services.generateApp('tmp', {path: '/'}).then(function () {
+                    test.ifError(true);
+                    test.done();
+                }, function (err) {
+                    test.equal(err, 'Folder [/tmp] already exists.');
+                    test.done();
+                });
+            }
+        },
+        'Should update manifest.json': {
+            setUp: function (done) {
+                this._copyDirSyncRecursive = wrench.copyDirSyncRecursive;
+                this._getLatestAIQ = this.services._getLatestAIQ;
+                wrench.copyDirSyncRecursive = function () {
+                    return false;
+                };
+                this.services._getLatestAIQ = function (dest) {
+                    return Q.fcall(function () {
+                        return {aiq: dest, apiLevel: 999};
+                    });
+                };
+                done();
+            },
+            tearDown: function (done) {
+                this.services._getLatestAIQ = this._getLatestAIQ;
+                wrench.copyDirSyncRecursive = this._copyDirSyncRecursive;
+                done();
+            },
+
+            'put latest apiLevel': function (test) {
+                test.equal(typeof STORAGE['/tmp/aaa/manifest.json'], 'undefined');
+                this.services.generateApp('aaa', {path: '/tmp'}).then(function (data) {
+                    test.deepEqual(STORAGE['/tmp/aaa/manifest.json'], {name: 'aaa', minJsApiLevel: 999});
+                    test.deepEqual(data, {name: 'aaa', apiLevel: 999});
+                    test.done();
+                }, function () {
+                    test.ifError(true);
+                    test.done();
+                });
+            },
+            'force apiLevel value provided by User': function (test) {
+                test.equal(typeof STORAGE['/tmp/aaa/manifest.json'], 'undefined');
+                this.services.generateApp('aaa', {path: '/tmp', apiLevel: 111}).then(function (data) {
+                    test.deepEqual(STORAGE['/tmp/aaa/manifest.json'], {name: 'aaa', minJsApiLevel: 111});
+                    test.deepEqual(data, {name: 'aaa', apiLevel: 111});
+                    test.done();
+                }, function () {
+                    test.ifError(true);
+                    test.done();
+                });
+            },
         }
     },
 
