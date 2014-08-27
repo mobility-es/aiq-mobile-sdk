@@ -138,6 +138,28 @@ program
     });
 
 program
+    .command('generate [path]')
+    .usage([
+        '[options] [<path>]',
+        '',
+        '    <path>: The path to the workspace folder. If not specified, the current working directory will be used.'
+    ].join('\n'))
+    .description('generate skeleton app')
+    .option('-n, --name <app name>', 'name of the application. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
+    .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, latest Api Level will be used') // jshint ignore:line
+    .action(function (path) {
+        //HACK: to support Commander
+        var params = arguments[arguments.length - 1],
+            name = (params.name || '').trim();
+
+        params.path = path;
+
+        services.generateApp(name, params).then(function (appInfo) {
+            utils.info('Skeleton App [%s] was successfully created.', appInfo.name);
+        }, utils.error);
+    });
+
+program
     .command('publish [path]')
     .usage(pathUsage)
     .description('publish a new app to platform')
@@ -171,9 +193,9 @@ program
             id = (params.id || '').trim();
 
         if (!id) {
-           console.error('\n  error: missing required option `id\'');
-           params.help();
-           process.exit(1);
+            console.error('\n  error: missing required option `id\'');
+            params.help();
+            process.exit(1);
         }
 
         params.path = path;
@@ -194,9 +216,9 @@ program
             id = (params.id || '').trim();
 
         if (!id) {
-           console.error('\n  error: missing required option `id\'');
-           params.help();
-           process.exit(1);
+            console.error('\n  error: missing required option `id\'');
+            params.help();
+            process.exit(1);
         }
 
         services.deleteApp(id).then(function (appInfo) {
