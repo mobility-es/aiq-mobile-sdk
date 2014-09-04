@@ -146,7 +146,7 @@ program
     ].join('\n'))
     .description('generate skeleton app')
     .option('-n, --name <app name>', 'name of the application. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
-    .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, latest Api Level will be used') // jshint ignore:line
+    .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, the latest Api Level will be used') // jshint ignore:line
     .action(function (path) {
         //HACK: to support Commander
         var params = arguments[arguments.length - 1],

@@ -474,7 +474,7 @@ module.exports = {
                     test.ifError(true);
                     test.done();
                 }, function (err) {
-                    test.equal(err, 'Path is not writable.');
+                    test.equal(err, 'Workspace Path is not writable or does\'nt exist.');
                     test.done();
                 });
             },
