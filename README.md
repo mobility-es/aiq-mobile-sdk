@@ -1,11 +1,18 @@
 # aiq
 
-  AppearIQ Mobile SDK
+  Appear IQ Mobile HTML5 SDK
 
   [![Build Status](https://travis-ci.org/appear/aiq-mobile-sdk.png?branch=master)](https://travis-ci.org/appear/aiq-mobile-sdk)
 
 
-## Pre-Requirements
+## About Appear
+
+  At Appear, we develop a mobility platform (Appear IQ a.k.a AIQ) that helps you create enterprise-ready, cross-platform mobile apps. In short, we provide the necessary communication and security frameworks that you can use from your preferred technology stacks (i.e. AngularJS, Backbone.js, Sencha Touch, etc.). You can find more information at www.appeariq.com.
+  
+  This module helps you easily manage your apps lifecycles, incl the distribution onto mobile devices: generation > publication > update > deletion
+  
+
+## Prerequisites
 
   * [NodeJS](http://nodejs.org/download/)
       * **Mac/Win** - use package from the URL above
@@ -27,14 +34,15 @@
 
     Commands:
 
-      user                           display information about current session
+      user                           display information about the current session
       login [options]                authenticate against the platform and stores the access token
       logout                         destroy the stored access token
-      list                           display list of apps on platform
-      publish [options] [path]       publish a new app to platform
+      list                           display the list of apps on the platform
+      generate [options] [path]      generate a boilerplate app
+      publish [options] [path]       publish a new app to the platform
       update [options] [path]        update an existing app
-      unpublish [options]            remove specific app from platform
-      run [options] [path]           run the app on a local WebServer
+      unpublish [options]            remove a specific app from the platform
+      run [options] [path]           run the app in a local Node.js WebServer
 
     Options:
 
@@ -43,15 +51,15 @@
 
 ## Testing
 
-In order to test specific branch:
+In order to test a specific branch:
 
   * Clone the repository & checkout to the specific branch
   * Run `npm i` in the root of the repository
-  * Use `./bin/aiq`
+  * Run `./bin/aiq`
 
 ## License
 
-(The MIT License)
+(MIT License)
 
 Copyright (c) 2014 Appear Networks
 
