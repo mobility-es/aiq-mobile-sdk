@@ -114,7 +114,7 @@ program
             }
 
             var table = new Table({
-                head: ['ID', 'Rev', 'Name', 'Modified on', 'API', 'Mock?', 'Global?']
+                head: ['Solution', 'ID', 'Name', 'Modified on', 'API', 'Mock?']
             });
 
             // Apply Name-based sorting
@@ -124,13 +124,12 @@ program
 
             result.forEach(function (app) {
                 table.push([
+                    app.solution.name,
                     app._id,
-                    app._rev,
                     jsesc(app.name),
                     app.lastModified ? moment(app.lastModified).fromNow() : 'N/A',
                     app.minJsApiLevel || 0,
                     app.mock ? 'Yes'.warn : 'No'.info,
-                    app.global ? 'Yes'.warn : 'No'.info
                 ]);
             });
             console.log(table.toString());
@@ -168,7 +167,6 @@ program
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock <true|false>', 'enable mock mode')
-    .option('-g, --global', 'make the application global, so all users in the organization can access it')
     .note('A new app will be always created on platform and the app manifest file will be created/updated according to provided parameters.') // jshint ignore:line
     .action(function (path) {
         //HACK: to support Commander
@@ -187,7 +185,6 @@ program
     .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock <true|false>', 'enable mock mode')
-    .option('-g, --global ', 'make the application global, so all users in the organization can access it')
     .action(function (path) {
         //HACK: to support Commander
         var params = arguments[arguments.length - 1],
