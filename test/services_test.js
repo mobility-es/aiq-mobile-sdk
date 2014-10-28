@@ -102,7 +102,7 @@ module.exports = {
                 test.ifError(true);
                 test.done();
             }, function (data) {
-                test.equal(data, 'Current organization doesn\'t have solutions to which you have access.');
+                test.equal(data, 'You do not have access to any solution.');
                 test.done();
             });
         },
@@ -122,7 +122,7 @@ module.exports = {
                 });
             };
             this.services._selectSolution().then(function (data) {
-                test.equal(output[0], 'Solution [%s] was chosen automatically as only one available.');
+                test.equal(output[0], 'The app was published to the solution [%s].');
                 test.equal(output[1], 'bla');
                 test.equal(data, 'dla');
                 test.done();
@@ -157,7 +157,7 @@ module.exports = {
             };
 
             this.services._selectSolution().then(function (data) {
-                test.equal(outputs[0][0], 'Multiple solutions are available:');
+                test.equal(outputs[0][0], 'What solution do you want to publish the app to:');
                 test.equal(outputs[1][0], null);
 
                 test.deepEqual(outputs[2], ['\t[%d] %s', 1, 'foo']);
