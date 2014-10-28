@@ -4,6 +4,7 @@
 
 var pkg = require('../package.json'),
 
+    updateNotifier = require('update-notifier'),
     Table = require('cli-table'),
     moment = require('moment'),
     jsesc = require('jsesc'),
@@ -240,8 +241,15 @@ program
         }, utils.error);
     });
 
-program.parse(process.argv);
+if (process.argv.indexOf('--no-update-notifier') === -1) {
+    updateNotifier({
+        packageName: pkg.name,
+        packageVersion: pkg.version,
+        updateCheckInterval: 100
+    }).notify(true);
+}
 
+program.parse(process.argv);
 if (!program.args.length) {
     program.help();
 }

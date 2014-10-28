@@ -50,7 +50,8 @@
     "request": "~2.40.0",
     "restler": "~3.2.1",
     "unzip": "~0.1.9",
-    "wrench": "~1.5.8"
+    "wrench": "~1.5.8",
+    "update-notifier": "~0.2.2"
   },
   "devDependencies": {
     "grunt": "~0.4.4",
