@@ -1,8 +1,10 @@
 'use strict';
 
-var Q = require('q'),
+var os = require('os'),
+    Q = require('q'),
     fs = require('fs'),
     wrench = require('wrench'),
+    restler = require('restler'),
 
     rest = require('../lib/restler'),
     utils = require('../lib/utils'),
@@ -814,6 +816,60 @@ module.exports = {
                 test.done();
             };
             this.services.server(1337);
+        }
+    },
+
+    showLogs: {
+        setUp: function (done) {
+            this._restlerGet = restler.get;
+
+            this._stubRestlerGet = function (yieldTo, yieldWith) {
+                restler.get = function () {
+                    this.calledWith = arguments;
+                    return {
+                        on: function (e, cb) {
+                            if (yieldTo && e === yieldTo) {
+                                cb.apply(null, yieldWith);
+                            }
+                            return this;
+                        }
+                    };
+                };
+            };
+
+            this._utilsError = utils.error;
+            utils.error = function () {
+                this.calledWith = arguments;
+            };
+
+            this._processExit = process.exit;
+            process.exit = function () {
+                this._exitCalled = true;
+            };
+
+            done();
+        },
+        tearDown: function (done) {
+            restler.get = this._restlerGet;
+            utils.error = this._utilsError;
+            process.exit = this._processExit;
+            done();
+        },
+        'Should build a proper URL': function (test) {
+            this._stubRestlerGet();
+            this.services.showLogs('example.com');
+            test.equal('http://example.com:8000/logs', restler.calledWith[0]);
+            test.done();
+        },
+        'Should notify User when it is not possible to connect to the container': function (test) {
+            this._stubRestlerGet('error');
+            this.services.showLogs('0.0.0.0');
+            test.equal(utils.calledWith[0],
+                'The provided IP address is not reachable or debug mode is not enabled on this device.' + os.EOL +
+                'Please make sure your device is accessible and enable the debug mode from container settings page and try again.'
+            );
+            test.ok(process._exitCalled);
+            test.done();
         }
     },
 

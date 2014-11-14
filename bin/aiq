@@ -243,6 +243,21 @@ program
         }, utils.error);
     });
 
+program
+    .command('logs <ip>')
+    .description('show container logs')
+    .longDescription('This command connects to a device and shows the AIQ container logs.')
+    .option('-f, --follow', 'shows the new logs as they occur on device')
+    .action(function (ip, params) {
+        //HACK: Commander doesn't handle 'aiq logs -f x.x.x.x' call properly
+        //FIXME: get rid of Commander...
+        if (params.follow) {
+            program.args.push('bla');
+        }
+
+        services.showLogs(ip, params.follow);
+    });
+
 if (process.argv.indexOf('--no-update-notifier') === -1) {
     updateNotifier({
         packageName: pkg.name,
