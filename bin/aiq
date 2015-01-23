@@ -7,7 +7,6 @@ var pkg = require('../package.json'),
     updateNotifier = require('update-notifier'),
     Table = require('cli-table'),
     moment = require('moment'),
-    jsesc = require('jsesc'),
 
     url = require('url'),
     path = require('path'),
@@ -17,6 +16,12 @@ var pkg = require('../package.json'),
     services = new (require('../lib/services'))(path.join(utils.getUserHome(), '.aiqrc'), process.cwd());
 
 process.title = pkg.name;
+
+function jsesc (txt) {
+    return txt
+        .replace(/[\r\n\t]/g, ' ')
+        .replace(/[\b]/g, '');
+}
 
 var pathUsage = [
         '[options] [<path>]',
@@ -124,7 +129,7 @@ program
 
             result.forEach(function (app) {
                 table.push([
-                    app.solution.name,
+                    jsesc(app.solution.name),
                     app._id,
                     jsesc(app.name),
                     app.lastModified ? moment(app.lastModified).fromNow() : 'N/A',
@@ -155,7 +160,7 @@ program
         params.path = path;
 
         services.generateApp(name, params).then(function (appInfo) {
-            utils.info('Skeleton App [%s] was successfully created.', appInfo.name);
+            utils.info('Skeleton App [%s] was successfully created.', jsesc(appInfo.name));
         }, utils.error);
     });
 
@@ -173,7 +178,7 @@ program
         var params = arguments[arguments.length - 1];
         params.path = path;
         services.registerApp(params).then(function (appInfo) {
-            utils.info('New App [%s] with ID: %s was successfully created.', appInfo.name, appInfo.id);
+            utils.info('New App [%s] with ID: %s was successfully created.', jsesc(appInfo.name), appInfo.id);
         }, utils.error);
     });
 
