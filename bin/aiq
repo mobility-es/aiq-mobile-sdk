@@ -150,7 +150,7 @@ program
         '    <path>: The path to the workspace folder. If not specified, the current working directory will be used.'
     ].join('\n'))
     .description('generate a boilerplate app')
-    .option('-n, --name <app name>', 'name of the application. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
+    .option('-n, --name <app name>', 'name of the application. Note that app name has to be unique within the solution that it belongs to') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, the latest Api Level will be used') // jshint ignore:line
     .action(function (path) {
         //HACK: to support Commander
@@ -169,7 +169,7 @@ program
     .usage(pathUsage)
     .description('publish a new app to the platform')
     .longDescription('This command registers a new application on platform and deploys the content of the application folder as a new app.')
-    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
+    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that app name has to be unique within the solution that it belongs to') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock <true|false>', 'enable mock mode')
     .note('A new app will be always created on platform and the app manifest file will be created/updated according to provided parameters.') // jshint ignore:line
@@ -187,7 +187,7 @@ program
     .usage(pathUsage)
     .description('update an existing app')
     .option('-i, --id <app id>', 'application id. To find out what is your application id use "aiq list" command')
-    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
+    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that app name has to be unique within the solution that it belongs to') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock <true|false>', 'enable mock mode')
     .action(function (path) {
