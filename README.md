@@ -8,9 +8,9 @@
 ## About Appear
 
   At Appear, we develop a mobility platform (Appear IQ a.k.a AIQ) that helps you create enterprise-ready, cross-platform mobile apps. In short, we provide the necessary communication and security frameworks that you can use from your preferred technology stacks (i.e. AngularJS, Backbone.js, Sencha Touch, etc.). You can find more information at www.appeariq.com.
-  
+
   This module helps you easily manage your apps lifecycles, incl the distribution onto mobile devices: generation > publication > update > deletion
-  
+
 
 ## Prerequisites
 
@@ -43,6 +43,7 @@
       update [options] [path]        update an existing app
       unpublish [options]            remove a specific app from the platform
       run [options] [path]           run the app in a local Node.js WebServer
+      logs [options] <ip>            show container logs
 
     Options:
 

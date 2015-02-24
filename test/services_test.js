@@ -1,8 +1,10 @@
 'use strict';
 
-var Q = require('q'),
+var os = require('os'),
+    Q = require('q'),
     fs = require('fs'),
     wrench = require('wrench'),
+    restler = require('restler'),
 
     rest = require('../lib/restler'),
     utils = require('../lib/utils'),
@@ -77,6 +79,102 @@ module.exports = {
         test.equal(this.services._getUrl('app'), 'http://server.name/admin/applications');
         test.equal(this.services._getUrl('app', 123, 321), 'http://server.name/admin/applications/123/321');
         test.done();
+    },
+
+    _selectSolution: {
+        setUp: function (done) {
+            this._getSolutionsList = this.services._getSolutionsList;
+            this._read = this.services._read;
+            this._print = utils.print;
+            done();
+        },
+        tearDown: function (done) {
+            this.services._getSolutionsList = this._getSolutionsList;
+            this.services._read = this._read;
+            utils.print = this._print;
+            done();
+        },
+        'Should return error message if there are no solutions': function (test) {
+            this.services._getSolutionsList = function () {
+                return Q.fcall(function () {
+                    return;
+                });
+            };
+            this.services._selectSolution().then(function () {
+                test.ifError(true);
+                test.done();
+            }, function (data) {
+                test.equal(data, 'You do not have access to any solution.');
+                test.done();
+            });
+        },
+        'Should automatically choose Solution if there only one is available': function (test) {
+            var output;
+            utils.print = function () {
+                return function () {
+                    output = [].slice.call(arguments);
+                };
+            };
+            this.services._getSolutionsList = function () {
+                return Q.fcall(function () {
+                    return [{
+                        name: 'bla',
+                        _id: 'dla'
+                    }];
+                });
+            };
+            this.services._selectSolution().then(function (data) {
+                test.equal(output[0], 'The app was published to the solution [%s].');
+                test.equal(output[1], 'bla');
+                test.equal(data, 'dla');
+                test.done();
+            }, function () {
+                test.ifError(true);
+                test.done();
+            });
+        },
+        'Should read stdin if there are more than one Solutions available': function (test) {
+            var outputs = [];
+
+            utils.print = function () {
+                return function () {
+                    outputs.push([].slice.call(arguments));
+                };
+            };
+
+            this.services._read = function (params, cb) {
+                cb(null, 2);
+            };
+
+            this.services._getSolutionsList = function () {
+                return Q.fcall(function () {
+                    return [{
+                        name: 'zoo',
+                        _id: 'maz'
+                    }, {
+                        name: 'bar',
+                        _id: 'baz'
+                    }];
+                });
+            };
+
+            this.services._selectSolution().then(function (data) {
+                test.equal(outputs[0][0], 'What solution do you want to publish the app to:');
+                test.equal(outputs[1][0], null);
+
+                // Should be sorted alphabetically
+                test.deepEqual(outputs[2], ['\t[%d] %s', 1, 'bar']);
+                test.deepEqual(outputs[3], ['\t[%d] %s', 2, 'zoo']);
+
+                test.equal(outputs[4][0], null);
+
+                test.equal(data, 'maz');
+                test.done();
+            }, function () {
+                test.ifError(true);
+                test.done();
+            });
+        }
     },
 
     requestToken: {
@@ -618,6 +716,17 @@ module.exports = {
     },
 
     getAppsList: {
+        setUp: function (done) {
+            this._getSolutionsList = this.services._getSolutionsList;
+            this._restGet = rest.get;
+            done();
+        },
+        tearDown: function (done) {
+            this.services._getSolutionsList = this._getSolutionsList;
+            rest.get = this._restGet;
+            done();
+        },
+
         'Should check auth status': function (test) {
             var services = new Services('/configPathGuest', '/appPath');
             services.getAppsList().then(function () {
@@ -628,19 +737,55 @@ module.exports = {
                 test.done();
             });
         },
+        'Should map Solutions to Applications': function (test) {
+            rest.get = function () {
+                return Q.fcall(function () {
+                    return [
+                        {_id: '1', solutionId: 's1', name: 'one'},
+                        {_id: '3', solutionId: 's3', name: 'three'},
+                    ];
+                });
+            };
+
+            this.services._getSolutionsList = function () {
+                return Q.fcall(function () {
+                    return [
+                        {_id: 's1', name: 'sol1'},
+                        {_id: 's2', name: 'sol2'},
+                        {_id: 's3', name: 'sol3'}
+                    ];
+                });
+            };
+
+            this.services.getAppsList().then(function (data) {
+                test.deepEqual(data, [{
+                    _id: '1',
+                    solutionId: 's1',
+                    solution: {_id: 's1', name: 'sol1'},
+                    name: 'one'
+                }, {
+                    _id: '3',
+                    solutionId: 's3',
+                    solution: {_id: 's3', name: 'sol3'},
+                    name: 'three'
+                }
+                ]);
+                test.done();
+            }, function () {
+                test.ifError(true);
+                test.done();
+            });
+        },
         'Should return custom error message': function (test) {
-            var _get = rest.get;
             rest.get = function () {
                 return Q.fcall(function () {
                     throw 'invalid_token';
                 });
             };
             this.services.getAppsList().then(function () {
-                rest.get = _get;
                 test.ifError(true);
                 test.done();
             }, function (err) {
-                rest.get = _get;
                 test.equal(err, 'Session is expired. Please login again. See \'aiq login -h\'.');
                 test.done();
             });
@@ -671,6 +816,60 @@ module.exports = {
                 test.done();
             };
             this.services.server(1337);
+        }
+    },
+
+    showLogs: {
+        setUp: function (done) {
+            this._restlerGet = restler.get;
+
+            this._stubRestlerGet = function (yieldTo, yieldWith) {
+                restler.get = function () {
+                    this.calledWith = arguments;
+                    return {
+                        on: function (e, cb) {
+                            if (yieldTo && e === yieldTo) {
+                                cb.apply(null, yieldWith);
+                            }
+                            return this;
+                        }
+                    };
+                };
+            };
+
+            this._utilsError = utils.error;
+            utils.error = function () {
+                this.calledWith = arguments;
+            };
+
+            this._processExit = process.exit;
+            process.exit = function () {
+                this._exitCalled = true;
+            };
+
+            done();
+        },
+        tearDown: function (done) {
+            restler.get = this._restlerGet;
+            utils.error = this._utilsError;
+            process.exit = this._processExit;
+            done();
+        },
+        'Should build a proper URL': function (test) {
+            this._stubRestlerGet();
+            this.services.showLogs('example.com');
+            test.equal('http://example.com:8000/logs', restler.calledWith[0]);
+            test.done();
+        },
+        'Should notify User when it is not possible to connect to the container': function (test) {
+            this._stubRestlerGet('error');
+            this.services.showLogs('0.0.0.0');
+            test.equal(utils.calledWith[0],
+                'The provided IP address is not reachable or debug mode is not enabled on this device.' + os.EOL +
+                'Please make sure your device is accessible and enable the debug mode from container settings page and try again.'
+            );
+            test.ok(process._exitCalled);
+            test.done();
         }
     },
 

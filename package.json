@@ -39,23 +39,24 @@
   },
   "homepage": "https://github.com/appear/aiq-mobile-sdk",
   "dependencies": {
-    "archiver": "~0.8.1",
-    "cli-table": "~0.3.0",
-    "colors": "~0.6.2",
-    "commander": "~2.2.0",
-    "fstream": "~1.0.1",
-    "jsesc": "~0.4.3",
-    "moment": "~2.6.0",
-    "q": "~1.0.1",
-    "request": "~2.40.0",
-    "restler": "~3.2.1",
-    "unzip": "~0.1.9",
-    "wrench": "~1.5.8",
-    "update-notifier": "~0.2.2"
+    "archiver": "0.8.1",
+    "cli-table": "0.3.0",
+    "colors": "0.6.2",
+    "commander": "2.2.0",
+    "fstream": "1.0.1",
+    "moment": "2.6.0",
+    "mute-stream": "0.0.4",
+    "q": "1.0.1",
+    "readline": "0.0.4",
+    "request": "2.40.0",
+    "restler": "3.2.1",
+    "unzip": "0.1.9",
+    "update-notifier": "0.2.2",
+    "wrench": "1.5.8"
   },
   "devDependencies": {
-    "grunt": "~0.4.4",
-    "grunt-contrib-jshint": "~0.10.0",
-    "grunt-contrib-nodeunit": "~0.3.3"
+    "grunt": "0.4.4",
+    "grunt-contrib-jshint": "0.10.0",
+    "grunt-contrib-nodeunit": "0.3.3"
   }
 }

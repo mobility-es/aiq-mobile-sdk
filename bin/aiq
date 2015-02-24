@@ -7,7 +7,6 @@ var pkg = require('../package.json'),
     updateNotifier = require('update-notifier'),
     Table = require('cli-table'),
     moment = require('moment'),
-    jsesc = require('jsesc'),
 
     url = require('url'),
     path = require('path'),
@@ -17,6 +16,12 @@ var pkg = require('../package.json'),
     services = new (require('../lib/services'))(path.join(utils.getUserHome(), '.aiqrc'), process.cwd());
 
 process.title = pkg.name;
+
+function jsesc (txt) {
+    return txt
+        .replace(/[\r\n\t]/g, ' ')
+        .replace(/[\b]/g, '');
+}
 
 var pathUsage = [
         '[options] [<path>]',
@@ -114,7 +119,7 @@ program
             }
 
             var table = new Table({
-                head: ['ID', 'Rev', 'Name', 'Modified on', 'API', 'Mock?', 'Global?']
+                head: ['Solution', 'ID', 'Name', 'Modified on', 'API', 'Mock?']
             });
 
             // Apply Name-based sorting
@@ -124,13 +129,12 @@ program
 
             result.forEach(function (app) {
                 table.push([
+                    jsesc(app.solution.name),
                     app._id,
-                    app._rev,
                     jsesc(app.name),
                     app.lastModified ? moment(app.lastModified).fromNow() : 'N/A',
                     app.minJsApiLevel || 0,
                     app.mock ? 'Yes'.warn : 'No'.info,
-                    app.global ? 'Yes'.warn : 'No'.info
                 ]);
             });
             console.log(table.toString());
@@ -146,7 +150,7 @@ program
         '    <path>: The path to the workspace folder. If not specified, the current working directory will be used.'
     ].join('\n'))
     .description('generate a boilerplate app')
-    .option('-n, --name <app name>', 'name of the application. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
+    .option('-n, --name <app name>', 'name of the application. Note that app name has to be unique within the solution that it belongs to') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, the latest Api Level will be used') // jshint ignore:line
     .action(function (path) {
         //HACK: to support Commander
@@ -156,7 +160,7 @@ program
         params.path = path;
 
         services.generateApp(name, params).then(function (appInfo) {
-            utils.info('Skeleton App [%s] was successfully created.', appInfo.name);
+            utils.info('Skeleton App [%s] was successfully created.', jsesc(appInfo.name));
         }, utils.error);
     });
 
@@ -165,17 +169,16 @@ program
     .usage(pathUsage)
     .description('publish a new app to the platform')
     .longDescription('This command registers a new application on platform and deploys the content of the application folder as a new app.')
-    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
+    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that app name has to be unique within the solution that it belongs to') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock <true|false>', 'enable mock mode')
-    .option('-g, --global', 'make the application global, so all users in the organization can access it')
     .note('A new app will be always created on platform and the app manifest file will be created/updated according to provided parameters.') // jshint ignore:line
     .action(function (path) {
         //HACK: to support Commander
         var params = arguments[arguments.length - 1];
         params.path = path;
         services.registerApp(params).then(function (appInfo) {
-            utils.info('New App [%s] with ID: %s was successfully created.', appInfo.name, appInfo.id);
+            utils.info('New App [%s] with ID: %s was successfully created.', jsesc(appInfo.name), appInfo.id);
         }, utils.error);
     });
 
@@ -184,10 +187,9 @@ program
     .usage(pathUsage)
     .description('update an existing app')
     .option('-i, --id <app id>', 'application id. To find out what is your application id use "aiq list" command')
-    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that depending on your organization settings, app name might or might not have to be unique') // jshint ignore:line
+    .option('-n, --name <app name>', 'name of the application. If not provided, value from manifest.json file will be used. Note that app name has to be unique within the solution that it belongs to') // jshint ignore:line
     .option('-l, --apiLevel <n>', 'integer value indicating the minimum JS API level. If not provided, value from manifest.json file will be used. Otherwise the default value is 1') // jshint ignore:line
     .option('-m, --mock <true|false>', 'enable mock mode')
-    .option('-g, --global ', 'make the application global, so all users in the organization can access it')
     .action(function (path) {
         //HACK: to support Commander
         var params = arguments[arguments.length - 1],
@@ -239,6 +241,21 @@ program
         services.server(params.port, path).then(function () {
             utils.info('WebServer successfully started at http://localhost:%d/\nPress <CTRL> + <C> to shutdown.', params.port);
         }, utils.error);
+    });
+
+program
+    .command('logs <ip>')
+    .description('show container logs')
+    .longDescription('This command connects to a device and shows the AIQ container logs.')
+    .option('-f, --follow', 'shows the new logs as they occur on device')
+    .action(function (ip, params) {
+        //HACK: Commander doesn't handle 'aiq logs -f x.x.x.x' call properly
+        //FIXME: get rid of Commander...
+        if (params.follow) {
+            program.args.push('bla');
+        }
+
+        services.showLogs(ip, params.follow);
     });
 
 if (process.argv.indexOf('--no-update-notifier') === -1) {
