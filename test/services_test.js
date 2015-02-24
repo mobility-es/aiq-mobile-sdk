@@ -147,7 +147,7 @@ module.exports = {
             this.services._getSolutionsList = function () {
                 return Q.fcall(function () {
                     return [{
-                        name: 'foo',
+                        name: 'zoo',
                         _id: 'maz'
                     }, {
                         name: 'bar',
@@ -160,12 +160,13 @@ module.exports = {
                 test.equal(outputs[0][0], 'What solution do you want to publish the app to:');
                 test.equal(outputs[1][0], null);
 
-                test.deepEqual(outputs[2], ['\t[%d] %s', 1, 'foo']);
-                test.deepEqual(outputs[3], ['\t[%d] %s', 2, 'bar']);
+                // Should be sorted alphabetically
+                test.deepEqual(outputs[2], ['\t[%d] %s', 1, 'bar']);
+                test.deepEqual(outputs[3], ['\t[%d] %s', 2, 'zoo']);
 
                 test.equal(outputs[4][0], null);
 
-                test.equal(data, 'baz');
+                test.equal(data, 'maz');
                 test.done();
             }, function () {
                 test.ifError(true);
