@@ -517,7 +517,7 @@ module.exports = {
             };
             this.services.logout().then(function (data) {
                 rest.postJson = _postJson;
-                test.deepEqual(data, {});
+                test.equal(data, undefined);
                 test.done();
             }, function () {
                 rest.postJson = _postJson;
